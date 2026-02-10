@@ -2,11 +2,25 @@ const mongoose = require('mongoose');
 const User = require('../models/user');
 
 const participant = User.discriminator('participant', new mongoose.Schema({
+    contactNumber : {
+        type: Number,
+        required: true
+    },
+    OrgName : {
+        type: String,
+        required: true
+    },
     participantType: {
         type: String,
         enum: ['IIIT', 'Non-IIIT'],
         default: 'IIIT',
-        required: true
+        required: true,
+        validate:[{
+            validator: function () {
+                if(this.OrgName === 'International Institute of Information Technology')
+                    this.participantType = 'IIIT';
+            }
+        }]
     }
 }));
 

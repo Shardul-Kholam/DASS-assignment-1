@@ -1,7 +1,8 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes');
-const loginRoutes = require('./routes/loginRoutes');
+const authRoutes = require('./routes/authRoutes');
+const verifyToken = require("./middlewares/authMiddleware");
 
 const app = express();
 const PORT = 8080;
@@ -18,8 +19,9 @@ app.get("/", (req, res) => {
     res.send("SERVER ON")
 });
 
-app.use("/login", loginRoutes);
+app.use("/auth", authRoutes);
 
-app.use("/users", userRoutes);
+app.use(verifyToken);
+app.use("/user", userRoutes);
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

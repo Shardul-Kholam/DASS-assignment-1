@@ -1,18 +1,32 @@
 const mongoose = require('mongoose');
-const User = require('../models/user');
+require('dotenv').config();
 
-const organizer = User.discriminator('organizer', new mongoose.Schema({
-    organizationType: {
+const organizer = new mongoose.Schema({
+    category: {
         type: String,
-        enum: ['Clubs', 'Council', 'Fest Team'],
+        enum: ['Club', 'Council', 'Fest Team'],
         required: true
+    },
+    organizerName:{
+        type: String,
+        required: true
+    },
+    description : {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase: true,
+        validate:[
+            {
+                validator: (v) => RegExp(process.env.EMAIL_REGEX).test(v),
+                message: 'Please enter a valid email address'
+            }
+        ]
     }
-}));
-
-// Email Validation
-organizer.schema.path('email').validate(function(email){
-   return email.endsWith('.iiit.ac.in');
-}, 'Organizers must have a valid IIIT email!'
-);
+});
 
 module.exports = organizer;

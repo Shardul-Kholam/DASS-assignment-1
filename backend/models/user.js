@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 // noinspection JSUnusedGlobalSymbols
 const userSchema = new mongoose.Schema({
@@ -20,7 +19,7 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate : [
             {
-                validator : (v) => emailRegex.test(v),
+                validator : (v) => RegExp(process.env.EMAIL_REGEX).test(v),
                 message : 'Please enter a valid email, Syntax(example@domain)'
             }
         ]
