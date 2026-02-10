@@ -1,0 +1,1 @@
+// we will use js to generate the jsx file, instead of writing HTML or XML.
