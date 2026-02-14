@@ -4,7 +4,7 @@ const eventSchema = new mongoose.Schema({
     Name: {
         type: String,
         required: true,
-        unique: true,
+        unique: true
     },
     description: {
         type: String,
@@ -41,7 +41,6 @@ const eventSchema = new mongoose.Schema({
     orgID : {
         type: String,
         required: true,
-        validate: {}
     },
     tags : {
         type: Array,

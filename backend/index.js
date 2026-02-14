@@ -10,6 +10,13 @@ const PORT = 8080;
 // Connection
 connectDB().then(async () => {}).catch();
 
+require("./models/user");
+require("./models/participant");
+require("./models/organizer");
+require("./models/event");
+require("./models/merchandiseEvent");
+require("./models/normalEvent");
+
 // Middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());

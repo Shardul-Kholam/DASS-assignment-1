@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/user');
 
-const participant = User.discriminator('participant', new mongoose.Schema({
+const participantSchema = new mongoose.Schema({
     contactNumber : {
         type: Number,
         required: true
@@ -14,15 +14,20 @@ const participant = User.discriminator('participant', new mongoose.Schema({
         type: String,
         enum: ['IIIT', 'Non-IIIT'],
         default: 'IIIT',
-        required: true,
-        validate:[{
-            validator: function () {
-                if(this.OrgName === 'International Institute of Information Technology')
-                    this.participantType = 'IIIT';
-            }
-        }]
+        required: true
     }
-}));
+});
+
+// OrgName and ParticipantType validation
+participantSchema.pre('validate', function (next) {
+            if(this.OrgName === 'International Institute of Information Technology')
+                this.participantType = 'IIIT';
+            else this.participantType = 'Non-IIIT';
+            next();
+        }
+);
+
+participant = User.discriminator('participant', participantSchema);
 
 // Email Validation
 participant.schema.path('email').validate(function(email){

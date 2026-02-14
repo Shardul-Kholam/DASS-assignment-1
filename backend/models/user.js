@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-
-// noinspection JSUnusedGlobalSymbols
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
@@ -48,8 +46,3 @@ userSchema.pre('save', async function (next) {
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
-
-
-
-
-
