@@ -17,7 +17,16 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate : [
             {
-                validator : (v) => RegExp(process.env.EMAIL_REGEX).test(v),
+                validator : (v) => {
+                    try {
+                        let pattern = process.env.EMAIL_REGEX || '^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$';
+                        pattern = String(pattern).trim().replace(/^\/+|\/+;?$|;$/g, '');
+                        const re = new RegExp(pattern);
+                        return re.test(v);
+                    } catch (e) {
+                        return false;
+                    }
+                },
                 message : 'Please enter a valid email, Syntax(example@domain)'
             }
         ]
@@ -32,15 +41,10 @@ const userSchema = new mongoose.Schema({
 
 // Password Encryption Middleware
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
+    if (!this.isModified('password')) return;
 
-    try{
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch(err) {
-        next(err);
-    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
 })
 
 const User = mongoose.model('User', userSchema);

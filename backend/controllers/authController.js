@@ -7,77 +7,107 @@ const bcrypt = require("bcrypt");
 const participant = require("../models/participant");
 const mongoose = require("mongoose");
 
-const verifyUser = async (req,res) => {
-    try{
+const verifyUser = async (req, res) => {
+    try {
         const {email, password} = req.body;
-        if(!email || !password){
-            return res.status(400).json({error:"Required fields are missing"});
+        
+        if (!email || !password) {
+            return res.status(400).json({error: "Required fields are missing"});
         }
 
-        const user = await User.findOne({email}, '+password', null);
+        // Fixed: Use .select() instead of positional params
+        const user = await User.findOne({email}).select('+password');
         const authError = "Invalid email or password";
 
-        if(!user){
+        if (!user) {
             return res.status(401).json({error: authError});
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return res.status(401).json({error : authError});
+        if (!isMatch) {
+            return res.status(401).json({error: authError});
         }
 
         const userID = user._id.toString();
 
         const tokenPayload = {
             userID,
-            email : user.email
+            email: user.email,
+            role: user.role
         }
 
-        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn : '1h'});
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: '1h'});
 
         return res.status(200).json({
-            msg : "Successfully Logged In",
+            msg: "Successfully Logged In",
             token,
-            redirectUrl : `/user/${userID}/dashboard`
+            redirectUrl: `/user/${userID}/dashboard`
         });
-    } catch(err) {
+    } catch (err) {
         console.error("Login Error", err);
-        return res.status(500).json({error : err.message});
+        return res.status(500).json({error: "Authentication failed"});
     }
 }
 
 const register = async (req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    try {
+        const {firstName, lastName, email, password, participantType, phone, orgName} = req.body;
 
-    try{
-        const {firstName, lastName, email, password, participantType} = req.body;
+        if (!firstName || !lastName || !email || !password || !phone || !orgName || !participantType) {
+            return res.status(400).json({msg: "All fields are required"});
+        }
+
+        if (!['IIIT', 'Non-IIIT'].includes(participantType)) {
+            return res.status(400).json({msg: "Invalid participant type"});
+        }
+
+        const contactNumber = Number(String(phone).replace(/\D/g, ''));
+        
+        if (isNaN(contactNumber) || contactNumber <= 0) {
+            return res.status(400).json({msg: "Invalid phone number"});
+        }
+
+        const trimmedOrgName = orgName.trim();
+        
+        if (!trimmedOrgName.length) {
+            return res.status(400).json({msg: "Organization name cannot be empty"});
+        }
 
         const newUser = new participant({
-            firstName,
-            lastName,
-            email,
-            password,
-            participantType
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            email: email.trim(),
+            password, 
+            participantType,
+            contactNumber,    
+            OrgName: trimmedOrgName
         });
 
-        const savedUser = await newUser.save({session});
+        const savedUser = await newUser.save();
 
-        await session.commitTransaction();
-        await session.endSession();
-
-        return res.status(200).json({
+        return res.status(201).json({
             msg: "Participant successfully registered",
-            user: savedUser
+            user: {
+                id: savedUser._id,
+                email: savedUser.email,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                role: savedUser.role
+            }
         });
     } catch (err) {
-        await session.abortTransaction();
-        await session.endSession();
+        console.error("signup error", err);
 
-        if(err.code === 11000) {
+        if (err.code === 11000) {
             return res.status(400).json({msg: "Email already exists"});
         }
-        return res.status(500).json({msg: err.message});
+
+        if (err.name === 'ValidationError') {
+            const messages = Object.values(err.errors).map(val => val.message);
+            return res.status(400).json({msg: messages.join(', ')});
+        }
+
+        return res.status(500).json({msg: "Registration failed"});
     }
 }
 

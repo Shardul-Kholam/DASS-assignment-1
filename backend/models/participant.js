@@ -20,11 +20,10 @@ const participantSchema = new mongoose.Schema({
 
 // OrgName and ParticipantType validation
 participantSchema.pre('validate', function (next) {
-            if(this.OrgName === 'International Institute of Information Technology')
-                this.participantType = 'IIIT';
-            else this.participantType = 'Non-IIIT';
-            next();
-        }
+        if(this.OrgName === 'International Institute of Information Technology')
+            this.participantType = 'IIIT';
+        else this.participantType = 'Non-IIIT';
+    }
 );
 
 participant = User.discriminator('participant', participantSchema);

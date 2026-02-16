@@ -22,7 +22,16 @@ const organizer = new mongoose.Schema({
         lowercase: true,
         validate:[
             {
-                validator: (v) => RegExp(process.env.EMAIL_REGEX).test(v),
+                validator: (v) => {
+                    try {
+                        let pattern = process.env.EMAIL_REGEX || '^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$';
+                        pattern = String(pattern).trim().replace(/^\/+|\/+;?$|;$/g, '');
+                        const re = new RegExp(pattern);
+                        return re.test(v);
+                    } catch (e) {
+                        return false;
+                    }
+                },
                 message: 'Please enter a valid email address'
             }
         ]
