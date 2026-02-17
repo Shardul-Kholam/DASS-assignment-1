@@ -24,13 +24,13 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(errorData.message || "Signup failed");
+                alert(errorData.message || "Login failed");
                 return;
             }
 
-            router.push("/user/dashboard");
+            router.push("/dashboard");
         } catch (error) {
-            console.error("Signup error:", error);
+            console.error("Login error:", error);
         }
     };
 
