@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const User = require('./user');
 require('dotenv').config();
 
-const organizer = new mongoose.Schema({
+const organizerSchema = new mongoose.Schema({
     category: {
         type: String,
         enum: ['Club', 'Council', 'Fest Team'],
@@ -14,28 +15,9 @@ const organizer = new mongoose.Schema({
     description : {
         type: String,
         required: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        validate:[
-            {
-                validator: (v) => {
-                    try {
-                        let pattern = process.env.EMAIL_REGEX || '^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$';
-                        pattern = String(pattern).trim().replace(/^\/+|\/+;?$|;$/g, '');
-                        const re = new RegExp(pattern);
-                        return re.test(v);
-                    } catch (e) {
-                        return false;
-                    }
-                },
-                message: 'Please enter a valid email address'
-            }
-        ]
     }
 });
+
+const organizer = User.discriminator('ORGANIZER', organizerSchema);
 
 module.exports = organizer;

@@ -2,11 +2,19 @@ const mongoose = require('mongoose');
 const User = require('../models/user');
 
 const participantSchema = new mongoose.Schema({
+    firstName : {
+        type: String,
+        required: true
+    },
+    lastName : {
+        type: String,
+        required: true
+    },
     contactNumber : {
         type: Number,
         required: true
     },
-    OrgName : {
+    orgName : {
         type: String,
         required: true
     },
@@ -20,13 +28,13 @@ const participantSchema = new mongoose.Schema({
 
 // OrgName and ParticipantType validation
 participantSchema.pre('validate', function (next) {
-        if(this.OrgName === 'International Institute of Information Technology, Hyderabad')
+        if(this.orgName === 'International Institute of Information Technology, Hyderabad')
             this.participantType = 'IIIT';
         else this.participantType = 'Non-IIIT';
     }
 );
 
-participant = User.discriminator('participant', participantSchema);
+participant = User.discriminator('PARTICIPANT', participantSchema);
 
 // Email Validation
 participant.schema.path('email').validate(function(email){
