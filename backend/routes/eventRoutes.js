@@ -7,6 +7,6 @@ router.get("/", getAllEvents);
 
 router.post("/create", authMiddleware, createEvent);
 
-router.post("/:eventId/register", authMiddleware,registerForEvent);
+router.post("/:eventId/register", authMiddleware, registerForEvent);
 
 module.exports = router;

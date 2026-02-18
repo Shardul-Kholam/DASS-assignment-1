@@ -13,7 +13,7 @@ const redactFormat = winston.format((info) => {
         }
 
         // Handle objects
-        const newObj = { ...obj };
+        const newObj = {...obj};
         Object.keys(newObj).forEach((key) => {
             if (SENSITIVE_KEYS.includes(key)) {
                 newObj[key] = '[REDACTED]';

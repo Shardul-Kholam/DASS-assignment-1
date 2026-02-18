@@ -6,7 +6,7 @@ const getAllUsers = async (req, res) => {
         // SECURITY FIX: Only Admins should be able to view all users
         if (req.user.role !== 'ADMIN') {
             logger.warn(`Unauthorized access to getAllUsers by ${req.user.userID}`);
-            return res.status(403).json({ error: "Access denied" });
+            return res.status(403).json({error: "Access denied"});
         }
 
         // SECURITY FIX: Explicitly exclude password, even if using lean()
@@ -14,7 +14,7 @@ const getAllUsers = async (req, res) => {
 
         return res.status(200).json(users);
     } catch (err) {
-        logger.error("Error fetching users", { error: err.message });
+        logger.error("Error fetching users", {error: err.message});
         return res.status(500).json({error: "Server Error"});
     }
 }

@@ -61,7 +61,7 @@ const verifyUser = async (req, res) => {
             redirectUrl: `/user/${userID}/dashboard`
         });
     } catch (err) {
-        logger.error("Login Error", { error: err.message });
+        logger.error("Login Error", {error: err.message});
         return res.status(500).json({error: "Authentication failed"});
     }
 }
@@ -114,7 +114,7 @@ const register = async (req, res) => {
             }
         });
     } catch (err) {
-        logger.error("Signup error", { error: err.message });
+        logger.error("Signup error", {error: err.message});
 
         if (err.code === 11000) {
             return res.status(400).json({msg: "Email already exists"});

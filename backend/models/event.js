@@ -1,7 +1,20 @@
 const mongoose = require('mongoose');
 
+const formFieldSchema = new mongoose.Schema({
+    label: {type: String, required: true},
+    fieldType: {
+        type: String,
+        enum: ['text', 'number', 'dropdown', 'checkbox', 'file'],
+        required: true
+    },
+    required: {type: Boolean, default: false},
+    options: [{type: String}], // For dropdowns/checkboxes
+    order: {type: Number, default: 0}
+});
+
 const eventSchema = new mongoose.Schema({
-    Name: {type: String, required: true, unique: true},
+    // PDF Section 8: Event Attributes
+    Name: {type: String, required: true},
     description: {type: String, required: true},
     eligibility: {type: String, required: true},
     registrationDeadline: {type: Date, required: true},
@@ -11,12 +24,20 @@ const eventSchema = new mongoose.Schema({
     registrationFee: {type: Number, required: true, default: 0},
     tags: [{type: String}],
     orgID: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
+    customForm: [formFieldSchema],
     registrations: [{
         participantId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
         registeredAt: {type: Date, default: Date.now},
-        status: {type: String, enum: ['Registered', 'Cancelled', 'Attended'], default: 'Registered'}
+        status: {
+            type: String,
+            enum: ['Registered', 'Cancelled', 'Attended', 'Waitlisted'],
+            default: 'Registered'
+        },
+        formResponses: {type: Map, of: mongoose.Schema.Types.Mixed}
     }]
 }, {discriminatorKey: 'type', timestamps: true});
 

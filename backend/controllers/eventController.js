@@ -37,7 +37,7 @@ const createEvent = async (req, res) => {
         logger.info(`Event created: ${newEvent._id} by ${req.user.userID}`);
         res.status(201).json({msg: "Event created successfully", event: newEvent});
     } catch (err) {
-        logger.error("Failed to create event", { error: err.message });
+        logger.error("Failed to create event", {error: err.message});
         res.status(500).json({error: "Failed to create event"});
     }
 };
@@ -47,7 +47,7 @@ const getAllEvents = async (req, res) => {
         const events = await Event.find().populate('orgID', 'organizerName email');
         res.status(200).json(events);
     } catch (err) {
-        logger.error("Could not fetch events", { error: err.message });
+        logger.error("Could not fetch events", {error: err.message});
         res.status(500).json({error: "Could not fetch events"});
     }
 };
@@ -82,7 +82,7 @@ const registerForEvent = async (req, res) => {
         logger.info(`User ${participantId} registered for event ${eventId}`);
         res.status(200).json({msg: "Registered successfully", ticketId: event._id});
     } catch (err) {
-        logger.error("Registration failed", { error: err.message, eventId: req.params.eventId });
+        logger.error("Registration failed", {error: err.message, eventId: req.params.eventId});
         res.status(500).json({error: "Registration failed"});
     }
 };

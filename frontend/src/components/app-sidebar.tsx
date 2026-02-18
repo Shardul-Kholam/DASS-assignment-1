@@ -2,23 +2,23 @@
 
 import * as React from "react"
 import {
-  IconDashboard,
-  IconListCheck,
-  IconLock,
-  IconLogout,
-  IconPlus,
-  IconSearch,
-  IconUser,
-  IconUsers
+    IconDashboard,
+    IconListCheck,
+    IconLock,
+    IconLogout,
+    IconPlus,
+    IconSearch,
+    IconUser,
+    IconUsers
 } from "@tabler/icons-react"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem
 } from "@/components/ui/sidebar"
 
 // Navigation items mapped by role as per assignment requirements

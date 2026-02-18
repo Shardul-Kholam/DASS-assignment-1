@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 8080;
 connectDB().then(() => {
     logger.info('Mongo connection established');
 }).catch(err => {
-    logger.error('Mongo connection failed', { error: err });
+    logger.error('Mongo connection failed', {error: err});
     process.exit(1);
 });
 
@@ -48,7 +48,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.use(morgan('dev', {
-    stream: { write: message => logger.info(message.trim()) }
+    stream: {write: message => logger.info(message.trim())}
 }));
 
 // Routes
