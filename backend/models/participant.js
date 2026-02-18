@@ -11,13 +11,6 @@ const participantSchema = new mongoose.Schema({
     }
 });
 
-// Validating email, orgName and participantType
-participantSchema.path('participantType').validate(function (value) {
-    if (this.email && this.email.endsWith('iiit.ac.in')) {
-        return value === 'IIIT';
-    }
-    return true;
-}, 'Users with IIIT emails must select Participant Type: IIIT');
 
 participantSchema.path('email').validate(function (email) {
     if (this.participantType === 'IIIT') {
