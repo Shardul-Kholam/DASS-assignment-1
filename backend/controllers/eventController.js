@@ -58,32 +58,57 @@ const registerForEvent = async (req, res) => {
         const participantId = req.user.userID;
 
         if (req.user.role !== 'PARTICIPANT') {
-            return res.status(403).json({error: "Only participants can register for events"});
+            return res.status(403).json({error: "Only participants can register"});
         }
 
         const event = await Event.findById(eventId);
         if (!event) return res.status(404).json({error: "Event not found"});
 
-        const alreadyReg = event.registrations.find(r => r.participantId.toString() === participantId);
-
         if (new Date() > new Date(event.registrationDeadline)) {
             return res.status(400).json({error: "Registration deadline passed"});
         }
-        if (event.registrations.length >= event.registrationLimit) {
-            return res.status(400).json({error: "Registration limit reached"});
-        }
+
+        const alreadyReg = event.registrations.some(r => r.participantId.toString() === participantId);
         if (alreadyReg) {
             return res.status(400).json({error: "Already registered"});
         }
 
-        event.registrations.push({participantId});
-        await event.save();
+        let updatedEvent;
 
-        logger.info(`User ${participantId} registered for event ${eventId}`);
-        res.status(200).json({msg: "Registered successfully", ticketId: event._id});
+        if (event.eventType === 'MERCHANDISE') {
+            updatedEvent = await Event.findOneAndUpdate(
+                {
+                    _id: eventId,
+                    stock: { $gt: 0 }
+                },
+                {
+                    $push: { registrations: { participantId, date: new Date() } },
+                    $inc: { stock: -1 } 
+                },
+                { new: true }
+            );
+            if (!updatedEvent) return res.status(400).json({error: "Item out of stock"});
+
+        } else {
+            updatedEvent = await Event.findOneAndUpdate(
+                {
+                    _id: eventId,
+                    $expr: { $lt: [{ $size: "$registrations" }, "$registrationLimit"] } // Ensure size < limit
+                },
+                {
+                    $push: { registrations: { participantId, date: new Date() } }
+                },
+                { new: true }
+            );
+            if (!updatedEvent) return res.status(400).json({error: "Registration limit reached"});
+        }
+
+        logger.info(`User ${participantId} registered for ${eventId}`);
+        res.status(200).json({msg: "Registration successful", ticketId: updatedEvent._id});
+
     } catch (err) {
-        logger.error("Registration failed", {error: err.message, eventId: req.params.eventId});
-        res.status(500).json({error: "Registration failed"});
+        logger.error("Registration failed", {error: err.message});
+        res.status(500).json({error: "Registration failed due to server error"});
     }
 };
 

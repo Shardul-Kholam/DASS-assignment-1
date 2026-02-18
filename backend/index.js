@@ -1,9 +1,11 @@
+// Imports
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 const logger = require("./utils/logger");
+const cookieParser = require("cookie-parser");
 
 // Routes
 const userRoutes = require('./routes/userRoutes');
@@ -46,6 +48,7 @@ app.use(cors({
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(morgan('dev', {
     stream: {write: message => logger.info(message.trim())}
@@ -62,4 +65,5 @@ app.use(verifyToken);
 app.use("/api/user", userRoutes);
 app.use("/api/events", eventRoutes)
 
+// Listener
 app.listen(PORT, () => logger.info(`Server is running on port ${PORT}`));

@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import axiosClient from "@/lib/axiosClient"
+import { AxiosError } from "axios"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -76,25 +78,21 @@ export function CreateEventForm({ userId }: { userId: string }) {
                 orgID: userId // Explicitly pass userId if needed by backend, though typically handled by token
             }
 
-            const response = await fetch("/api/events/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            })
-
-            if (!response.ok) {
-                const err = await response.json()
-                // Do not throw; handle error gracefully
-                toast.error(err.error || "Failed to create event")
-                return
-            }
+            const response = await axiosClient.post("/api/events/create", payload)
 
             toast.success("Event created successfully")
             reset()
             router.refresh()
         } catch (error) {
             console.error(error)
-            toast.error("An unexpected error occurred")
+            let errorMessage = "An unexpected error occurred"
+            
+            if (error instanceof AxiosError && error.response?.data) {
+                const data = error.response.data as any;
+                errorMessage = data.error || data.message || errorMessage
+            }
+            
+            toast.error(errorMessage)
         }
     }
 

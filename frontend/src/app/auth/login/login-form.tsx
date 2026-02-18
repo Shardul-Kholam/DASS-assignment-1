@@ -8,6 +8,8 @@ import {useRouter} from "next/navigation";
 import {useForm} from "react-hook-form";
 import {logInSchema, logInValues} from "@/app/auth/login/loginSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
+import axiosClient from "@/lib/axiosClient";
+import {AxiosError} from "axios";
 
 export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
     const router = useRouter();
@@ -18,18 +20,28 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
 
     const onSubmit = async (data: logInValues) => {
         try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data),
-            });
+            const response = await axiosClient.post("/api/auth/login", data);
 
-            if (response.ok) {
-                const {userID} = await response.json();
-                router.push(`${userID}/dashboard`);
+            const responseData = response.data;
+
+            if(responseData.token){
+                localStorage.setItem("authToken", responseData.token);
             }
 
-            alert(response.ok ? "Login successful!" : "Login failed. Please check your credentials and try again.");
+            window.dispatchEvent(new Event("storage")); // Notify other tabs about the token change
+
+            router.push(`${responseData.userID}/dashboard`);
+            alert("Login successful!");
         } catch (error) {
             console.error("Login error:", error);
+            let errorMessage = "Login failed. Please check your credentials and try again.";
+            
+            if (error instanceof AxiosError && error.response?.data) {
+                const data = error.response.data as any;
+                errorMessage = data.message || data.error || errorMessage;
+            }
+            
+            alert(errorMessage);
         }
     };
 

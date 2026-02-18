@@ -9,6 +9,8 @@ import {Field, FieldDescription, FieldGroup, FieldLabel} from "@/components/ui/f
 import {signUpSchema, signUpValues} from "@/app/auth/signup/signUpSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Controller, useForm} from "react-hook-form";
+import axiosClient from "@/lib/axiosClient";
+import {AxiosError} from "axios";
 
 export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
     const router = useRouter();
@@ -37,40 +39,9 @@ export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
         try {
             const {confirmPassword, ...payload} = data;
 
-            const response = await fetch("/api/auth/signup", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload),
-            });
+            const response = await axiosClient.post("/api/auth/signup", payload);
 
-            const contentType = response.headers.get("content-type");
-
-            if (!contentType?.includes("application/json")) {
-                console.error("Server returned non-JSON response");
-                console.error("Content-Type:", contentType);
-                console.error("Status:", response.status);
-
-                const rawText = await response.text();
-                console.error("Response preview:", rawText.substring(0, 500));
-
-                alert(
-                    `Server error: Expected JSON but received ${contentType}. ` +
-                    `This usually means the API route is misconfigured or doesn't exist. ` +
-                    `Status: ${response.status}`
-                );
-                return;
-            }
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                const errorMessage = responseData.msg ||
-                    responseData.message ||
-                    responseData.error ||
-                    "Signup failed. Please try again.";
-                alert(errorMessage);
-                return;
-            }
+            const responseData = response.data;
 
             alert("Account created successfully!");
             router.push("/auth/login");
@@ -78,11 +49,18 @@ export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
         } catch (error) {
             console.error("Signup error:", error);
 
-            if (error instanceof TypeError && error.message.includes("fetch")) {
-                alert("Network error: Unable to connect to server. Please check your connection.");
-            } else {
-                alert("Error: " + (error instanceof Error ? error.message : String(error)));
+            let errorMessage = "Signup failed. Please try again.";
+
+            if (error instanceof AxiosError && error.response?.data) {
+                const data = error.response.data as any;
+                errorMessage = data.msg || data.message || data.error || errorMessage;
+            } else if (error instanceof TypeError) {
+                errorMessage = "Network error: Unable to connect to server. Please check your connection.";
+            } else if (error instanceof Error) {
+                errorMessage = "Error: " + error.message;
             }
+
+            alert(errorMessage);
         }
     });
 

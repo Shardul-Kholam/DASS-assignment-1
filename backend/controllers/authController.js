@@ -1,9 +1,7 @@
-/** @type {import('mongoose').Model} */
 const User = require('../models/user');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
-/** @type {import('mongoose').Model} */
 const participant = require("../models/participant");
 const logger = require("../utils/logger");
 
@@ -19,7 +17,6 @@ const verifyUser = async (req, res) => {
         const authError = "Invalid email or password";
 
         if (!user) {
-            // Log generic attempt without revealing which part failed
             logger.warn(`Failed login attempt for email: ${email}`);
             return res.status(401).json({error: authError});
         }
@@ -45,7 +42,6 @@ const verifyUser = async (req, res) => {
 
         const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: '7d'});
 
-        // FIX: Ensure secure cookies in production
         res.cookie('authToken', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -57,7 +53,7 @@ const verifyUser = async (req, res) => {
 
         return res.status(200).json({
             msg: "Successfully Logged In",
-            token, // Kept for frontend compatibility, though cookie is preferred
+            token,
             redirectUrl: `/user/${userID}/dashboard`
         });
     } catch (err) {
@@ -88,6 +84,18 @@ const register = async (req, res) => {
 
         if (!trimmedOrgName.length) {
             return res.status(400).json({msg: "Organization name cannot be empty"});
+        }
+
+        if (participantType === 'IIIT' 
+            && email.toLowerCase().endsWith(`@${process.env.INSTITUTE_DOMAIN || 'iiit.ac.in'}`) === false) {
+            return res.status(400).json({
+                msg: `IIIT Participants must register with an @${process.env.INSTITUTE_DOMAIN || 'iiit.ac.in'} email.`
+            });
+        }
+
+        const emailRegex = process.env.INSTITUTE_DOMAIN;
+        if (!emailRegex.test(email)) {
+             return res.status(400).json({msg: "Invalid email format"});
         }
 
         const newUser = new participant({

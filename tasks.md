@@ -1,120 +1,138 @@
-# Implementation Level Tasks
+# Felicity Event Management System - Implementation Tasks
 
-## Phase 1: Backend (The Engine)
+## Phase 1: Core Backend (The Engine)
+*Status: Mostly Complete*
 
-*Focus: Node.js, Express, MongoDB*
+### 1.1 Initialization & Configuration
+- [x] **Project Setup**: Node.js, Express, MongoDB connection.
+- [x] **Security Packages**: Install `bcrypt` (hashing), `jsonwebtoken` (auth), `cors`, `dotenv`.
+- [x] **Database Models**:
+  - [x] `User` (Base schema for Auth).
+  - [x] `Participant` (Profile details).
+  - [x] `Organizer` (Club details).
+  - [x] `Event` (Attributes, Dates, Registration Limit).
 
-### Day 1: Server Initialization
+### 1.2 Authentication & Authorization
+- [x] **Registration**:
+  - [x] Participant Signup (IIIT email validation logic).
+  - [x] Organizer Creation (Admin only - via backend seed or endpoint).
+- [x] **Login**:
+  - [x] JWT Token generation.
+  - [x] Password hashing with bcrypt.
+- [x] **Middleware**:
+  - [x] `verifyToken` for protected routes.
+  - [x] Role-based access control (Admin vs Organizer vs Participant).
 
-- [X] **Project Setup**
-    - [X] Create root folder `my-mern-project`.
-    - [X] Create `backend` folder inside it.
-    - [X] Run `npm init -y` inside `backend` folder.
-- [X] **Install Dependencies**
-    - [X] Run `npm install express mongoose cors dotenv`.
-    - [X] Run `npm install -D nodemon` (for auto-restarting server).
-- [X] **Create Basic Server**
-    - [X] Create `backend/index.js`.
-    - [X] Import express, set up `app`, and listen on port `8080`.
-    - [X] Add a test route: `app.get('/', (req, res) => res.send('Server Running'))`.
-    - [X] Test in browser: Visit `http://localhost:8080`.
+### 1.3 Event Management API
+- [x] **CRUD Operations**:
+  - [x] `POST /create`: Create Event (Organizer only).
+  - [x] `GET /all`: Fetch all events.
+  - [x] `PUT /update/:id`: Edit event details (Organizer only).
+  - [x] `DELETE /delete/:id`: Remove event (Organizer only).
+- [x] **Registration Logic**:
+  - [x] `POST /register/:id`: Handle participant registration.
+  - [x] Validation: Check deadlines and registration limits.
 
-### Day 2: Database Connection
-
-- [X] **MongoDB Atlas Setup**
-    - [X] Create free account on MongoDB Atlas.
-    - [X] Create a Cluster.
-    - [X] **Network Access:** Whitelist IP `0.0.0.0/0` (Allow all).
-    - [X] **Database Access:** Create a user (remember password!).
-    - [X] Get Connection String (URI).
-- [X] **Connect App to DB**
-    - [X] Create `.env` file in `backend` folder. Add `MONGO_URI=your_string_here`.
-    - [X] In `index.js`, use `mongoose.connect(process.env.MONGO_URI)` to connect.
-    - [X] Verify "MongoDB Connected" logs in terminal.
-- [X] **Create Model (Schema)**
-    - [X] Create folder `backend/models`.
-    - [X] Create file `Item.js` (or `Task.js`, `user.js` depending on project).
-    - [X] Define Mongoose Schema (structure of your data).
-
-### Day 3: API Routes (CRUD)
-
-- [X] **Setup Router**
-    - [X] Create folder `backend/routes`.
-    - [X] Create file `api.js`.
-- [ ] **Implement Endpoints**
-    - [ ] **POST** `/save`: Receive JSON body, save to MongoDB using `.create()`.
-    - [ ] **GET** `/all`: Fetch all data using `.find()`, return JSON.
-    - [ ] **DELETE** `/delete/:id`: Delete item using `.findByIdAndDelete()`.
-    - [ ] **PUT** `/update/:id`: Update item using `.findByIdAndUpdate()`.
-- [ ] **Testing (Crucial)**
-    - [X] Install **Thunder Client** (VS Code extension) or Postman.
-    - [ ] Test all 4 routes manually. Ensure data appears in MongoDB Atlas.
+### 1.4 Remaining Backend Tasks
+- [ ] **Email Service**: Implement `nodemailer` to send tickets upon registration.
+- [ ] **Advanced Queries**: Implement fuzzy search for events/organizers.
+- [ ] **Admin Routes**:
+  - [ ] `POST /admin/approve-organizer`: Provision organizer accounts.
+  - [ ] `DELETE /admin/remove-user`: Ban/remove users.
 
 ---
 
-## Phase 2: Frontend (The Interface)
+## Phase 2: Frontend Core (The Interface)
+*Status: In Progress*
 
-*Focus: React, Vite, Axios*
+### 2.1 Initialization
+- [x] **Setup**: Vite + React + TypeScript.
+- [x] **UI Library**: Shadcn UI components installed (`field`, `card`, `button`, etc.).
+- [x] **Routing**: Next.js App Router structure set up.
 
-### Day 4: React Initialization
-
-- [ ] **Setup Vite**
-    - [ ] Go to root folder. Run `npm create vite@latest client -- --template react`.
-    - [ ] Run `cd frontend` and `npm install`.
-    - [ ] Install Axios: `npm install axios` (for calling backend).
-- [ ] **Cleanup**
-    - [ ] Delete default boilerplate code in `App.jsx` and `App.css`.
-    - [ ] Create components folder: `frontend/src/components`.
-
-### Day 5: Fetch & Display Data (Read)
-
-- [ ] **Setup State**
-    - [ ] Import `useState` and `useEffect` in `App.jsx`.
-    - [ ] Create state variable: `const [data, setData] = useState([])`.
-- [ ] **Fetch Data**
-    - [ ] Use `useEffect` to call `axios.get('http://localhost:5000/api/all')`.
-    - [ ] Handle **CORS Error**: Go back to `backend/index.js` and add `app.use(cors())`.
-    - [ ] Update state with fetched data: `setData(res.data)`.
-- [ ] **Render List**
-    - [ ] Use `.map()` function to loop through `data` and display HTML elements.
-
-### Day 6: Send Data (Create)
-
-- [ ] **Create Form Component**
-    - [ ] Create input fields for your data.
-    - [ ] Create state to hold input values (`currText`, etc.).
-- [ ] **Submit Logic**
-    - [ ] Create function `handleSubmit`.
-    - [ ] Use `axios.post('http://localhost:5000/api/save', payload)`.
-    - [ ] On success, refresh the list (fetch data again) or append new item locally.
-
-### Day 7: Interaction (Delete/Update)
-
-- [ ] **Add Delete Buttons**
-    - [ ] Add a button to each list item.
-    - [ ] On click, call `axios.delete('.../delete/' + item._id)`.
-    - [ ] Filter the item out of the local state array to update UI instantly.
+### 2.2 Dashboard Architecture (Role-Based)
+- [x] **Unified Dashboard**: `[userID]/dashboard/page.tsx` created.
+- [x] **Security**: URL parameter protection (prevent accessing others' dashboards).
+- [x] **Organizer View**:
+  - [x] "Create Event" Form (Zod validation + API integration).
+  - [ ] **To Do**: Event Analytics & "My Created Events" Carousel.
+- [x] **Participant View**:
+  - [x] Browse Events (Placeholder created).
+  - [ ] **To Do**: Participation History Tab (Tabs: Normal, Merch, Completed).
+- [x] **Admin View**:
+  - [x] User Management (Placeholder created).
+  - [ ] **To Do**: Interface to approve/remove Organizers.
 
 ---
 
-## Phase 3: Final Polish
+## Phase 3: Missing Feature Implementation
+*Status: To Do (Critical for PDF Compliance)*
 
-*Focus: Styling, Cleanup*
+### 3.1 Participant Features
+- [ ] **Browse Events Page**:
+  - [ ] Implement Search Bar (Fuzzy matching).
+  - [ ] Implement Filters: Event Type, Eligibility, Date Range.
+  - [ ] "Trending" Section (Top 5 events).
+- [ ] **Event Details Page**:
+  - [ ] Display full info (Description, Eligibility, Fee).
+  - [ ] "Register" Button (Changes to "Registered" if already joined).
+- [ ] **Profile Page**:
+  - [ ] Editable Fields: Interests, Followed Clubs.
+  - [ ] Read-only Fields: Email, Participant Type.
 
-### Day 8: CSS & Cleanup
+### 3.2 Organizer Features
+- [ ] **Event Management**:
+  - [ ] **Form Builder**: UI to add custom fields (text, dropdown) to event registration.
+  - [ ] **Draft vs Publish**: Logic to save drafts before publishing.
+- [ ] **Organizer Analytics**:
+  - [ ] View list of registered participants for an event.
+  - [ ] Export Participant List to CSV.
 
-- [ ] **Styling**
-    - [ ] Use basic CSS Grid/Flexbox to center the app.
-    - [ ] Make inputs and buttons look decent (padding, margin).
-- [ ] **Code Cleanup**
-    - [ ] Remove `console.log` statements.
-    - [ ] Delete unused files.
-- [ ] **Final Test**
-    - [ ] Verify full flow: Open app → Add item → Refresh page (item should stay) → Delete item.
+### 3.3 Admin Features
+- [ ] **Club Management**:
+  - [ ] Form to Create New Organizer (Auto-generate password).
+  - [ ] List of all Clubs with "Remove" button.
+- [ ] **Password Resets**:
+  - [ ] View and approve Organizer password reset requests.
 
-### Day 9-10: Buffer/Documentation
+---
 
-- [ ] **Readme.md**
-    - [ ] Write simple instructions: "How to run".
-        1. `cd backend` -> `npm run dev`
-        2. `cd frontend` -> `npm run dev`
+## Phase 4: Advanced Features (The "Easiest" Path)
+*Selection Rationale: Focused on standard CRUD and simple libraries to minimize complexity.*
+
+### 4.1 Tier A: Core Advanced (Choose 2)
+- [ ] **1. Merchandise Payment Approval Workflow**
+  - *Why:* It is essentially a status update flow.
+  - *Task:* Create `Order` model with `status: Pending`. User uploads image (store as Base64 or simple file). Admin clicks "Approve" -> `status: Paid`.
+- [ ] **2. QR Scanner & Attendance Tracking**
+  - *Why:* Libraries like `react-qr-reader` handle the hard part (camera logic).
+  - *Task:* Create Organizer view with Camera. Scan Ticket ID. Backend endpoint `POST /attend` marks `attended: true`.
+
+### 4.2 Tier B: Real-time & Communication (Choose 2)
+- [ ] **1. Organizer Password Reset Workflow**
+  - *Why:* Pure CRUD operation. No sockets or complex real-time logic required.
+  - *Task:* Organizer requests reset -> Admin table shows request -> Admin clicks button -> New password generated.
+- [ ] **2. Real-Time Discussion Forum**
+  - *Why:* Simpler than "Team Chat" because it doesn't require the complex "Team Registration" logic from Tier A.
+  - *Task:* Simple message list on Event Page. Use polling (fetching every 5s) or basic `socket.io` to append new messages.
+
+### 4.3 Tier C: Integration (Choose 1)
+- [ ] **1. Anonymous Feedback System**
+  - *Why:* Simplest data model.
+  - *Task:* Add `Feedback` model (stars, comment). Show simple form on past events. Calculate average stars.
+
+---
+
+## Phase 5: Final Polish & Deployment
+*Status: To Do*
+
+- [ ] **Documentation**:
+  - [ ] `README.md`: List libraries used + Justification.
+  - [ ] Document the chosen Advanced Features (Payment, QR, Reset, Forum, Feedback).
+- [ ] **Deployment**:
+  - [ ] Frontend: Vercel/Netlify.
+  - [ ] Backend: Render/Railway.
+  - [ ] Database: MongoDB Atlas.
+  - [ ] Create `deployment.txt` with URLs.
+- [ ] **Submission**:
+  - [ ] Zip file structure: `<roll_no>/backend`, `<roll_no>/frontend`, `README.md`.
