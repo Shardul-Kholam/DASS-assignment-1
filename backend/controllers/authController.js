@@ -5,8 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require("bcrypt");
 /** @type {import('mongoose').Model} */
 const participant = require("../models/participant");
-const mongoose = require("mongoose");
-
+const logger = require("../utils/logger");
 
 const verifyUser = async (req, res) => {
     try {
@@ -20,11 +19,14 @@ const verifyUser = async (req, res) => {
         const authError = "Invalid email or password";
 
         if (!user) {
+            // Log generic attempt without revealing which part failed
+            logger.warn(`Failed login attempt for email: ${email}`);
             return res.status(401).json({error: authError});
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
+            logger.warn(`Failed login attempt (password mismatch) for email: ${email}`);
             return res.status(401).json({error: authError});
         }
 
@@ -36,22 +38,30 @@ const verifyUser = async (req, res) => {
             role: user.role
         }
 
+        if (!process.env.JWT_SECRET) {
+            logger.error("JWT_SECRET is missing in environment");
+            return res.status(500).json({error: "Server configuration error"});
+        }
+
         const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: '7d'});
 
+        // FIX: Ensure secure cookies in production
         res.cookie('authToken', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
+        logger.info(`User logged in: ${userID}`);
+
         return res.status(200).json({
             msg: "Successfully Logged In",
-            token,
+            token, // Kept for frontend compatibility, though cookie is preferred
             redirectUrl: `/user/${userID}/dashboard`
         });
     } catch (err) {
-        console.error("Login Error", err);
+        logger.error("Login Error", { error: err.message });
         return res.status(500).json({error: "Authentication failed"});
     }
 }
@@ -91,6 +101,7 @@ const register = async (req, res) => {
         });
 
         const savedUser = await newUser.save();
+        logger.info(`New user registered: ${savedUser._id}`);
 
         return res.status(201).json({
             msg: "Participant successfully registered",
@@ -103,7 +114,7 @@ const register = async (req, res) => {
             }
         });
     } catch (err) {
-        console.error("signup error", err);
+        logger.error("Signup error", { error: err.message });
 
         if (err.code === 11000) {
             return res.status(400).json({msg: "Email already exists"});

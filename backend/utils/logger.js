@@ -1,59 +1,52 @@
-const path = require('path');
+const winston = require('winston');
 
-const SENSITIVE_KEYS = new Set(['password', 'confirmPassword', 'pwd', 'token', 'authorization']);
+// Keys to redact from logs
+const SENSITIVE_KEYS = ['password', 'confirmPassword', 'pwd', 'token', 'authorization'];
 
-function redact(value) {
-    if (value == null) return value;
-    if (typeof value === 'string') return value;
-    if (typeof value === 'object') {
-        try {
-            const cloned = Array.isArray(value) ? [...value] : {...value};
-            for (const k of Object.keys(cloned)) {
-                if (SENSITIVE_KEYS.has(k)) cloned[k] = '[REDACTED]';
-                else if (typeof cloned[k] === 'object') cloned[k] = redact(cloned[k]);
+const redactFormat = winston.format((info) => {
+    const redact = (obj) => {
+        if (!obj || typeof obj !== 'object') return obj;
+
+        // Handle arrays
+        if (Array.isArray(obj)) {
+            return obj.map(item => redact(item));
+        }
+
+        // Handle objects
+        const newObj = { ...obj };
+        Object.keys(newObj).forEach((key) => {
+            if (SENSITIVE_KEYS.includes(key)) {
+                newObj[key] = '[REDACTED]';
+            } else if (typeof newObj[key] === 'object') {
+                newObj[key] = redact(newObj[key]);
             }
-            return cloned;
-        } catch (e) {
-            return '[UNREDACTABLE]';
-        }
-    }
-    return value;
-}
-
-function getCallerLocation() {
-    const stack = new Error().stack || '';
-    const lines = stack.split('\n').slice(2);
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed) continue;
-        if (trimmed.includes('node:internal') || trimmed.includes('internal/modules')) continue;
-        if (trimmed.includes('logger.js')) continue;
-        // Example stack: at Object.<anonymous> (/home/user/.../file.js:10:5)
-        const match = trimmed.match(/\(?(.+?):(\d+):(\d+)\)?$/);
-        if (match) {
-            const filePath = match[1];
-            const rel = path.relative(process.cwd(), filePath);
-            const funcMatch = trimmed.match(/at (.+?) \(/);
-            const fn = funcMatch ? funcMatch[1] : '<anonymous>';
-            return `${rel}:${match[2]} (${fn})`;
-        }
-    }
-    return '<unknown>';
-}
-
-function wrapConsoleMethod(name) {
-    const orig = console[name].bind(console);
-    console[name] = (...args) => {
-        try {
-            const location = getCallerLocation();
-            const safeArgs = args.map(arg => redact(arg));
-            orig(`[${location}]`, ...safeArgs);
-        } catch (e) {
-            orig('[logger error]', e, ...args);
-        }
+        });
+        return newObj;
     };
-}
 
-['log', 'info', 'warn', 'error', 'debug'].forEach(wrapConsoleMethod);
+    // Redact the whole info object (message + meta)
+    const redactedInfo = redact(info);
 
-module.exports = {redact, getCallerLocation};
+    // Winiston mutability requirement: copy properties back to info
+    Object.assign(info, redactedInfo);
+    return info;
+});
+
+const logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: winston.format.combine(
+        redactFormat(),
+        winston.format.timestamp(),
+        winston.format.json()
+    ),
+    transports: [
+        new winston.transports.Console({
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple()
+            )
+        })
+    ]
+});
+
+module.exports = logger;

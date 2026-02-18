@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const User = require('./user');
+require('dotenv').config();
 
 const participantSchema = new mongoose.Schema({
     firstName: {type: String, required: true},
@@ -11,13 +12,14 @@ const participantSchema = new mongoose.Schema({
     }
 });
 
+const INSTITUTE_DOMAIN = process.env.INSTITUTE_DOMAIN;
 
 participantSchema.path('email').validate(function (email) {
     if (this.participantType === 'IIIT') {
-        return email.endsWith('iiit.ac.in');
+        return email && email.endsWith(INSTITUTE_DOMAIN);
     }
     return true;
-}, 'IIIT participants must use their institute email address.');
+}, `Institute participants must use their ${INSTITUTE_DOMAIN} email address.`);
 
 const Participant = User.discriminator('PARTICIPANT', participantSchema);
 

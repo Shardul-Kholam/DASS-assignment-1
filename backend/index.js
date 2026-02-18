@@ -1,47 +1,55 @@
-require('./utils/logger');
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 const connectDB = require("./config/db");
+const logger = require("./utils/logger");
+
+// Routes
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const verifyToken = require("./middlewares/authMiddleware");
 
-const app = express();
-const PORT = process.env.PORT || 8080;
-
-// Connection
-connectDB().then(() => {
-    console.log('Mongo connection established');
-}).catch(err => {
-    console.error('Mongo connection failed', err);
-    process.exit(1);
-});
-
+// Models
 require("./models/user");
 require("./models/participant");
 require("./models/organizer");
 require("./models/event");
 require("./models/merchandiseEvent");
 
+const app = express();
+const PORT = process.env.PORT || 8080;
+
+// Connection
+connectDB().then(() => {
+    logger.info('Mongo connection established');
+}).catch(err => {
+    logger.error('Mongo connection failed', { error: err });
+    process.exit(1);
+});
+
 // Middleware
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:3000').split(',');
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
-app.use((req, res, next) => {
-    const safeBody = {...req.body};
-    if (safeBody && Object.prototype.hasOwnProperty.call(safeBody, 'password')) {
-        safeBody.password = '[REDACTED]';
-    }
-    console.log(`${req.method} ${req.path}`, safeBody);
-    next();
-});
+app.use(morgan('dev', {
+    stream: { write: message => logger.info(message.trim()) }
+}));
 
 // Routes
 app.get("/", (req, res) => {
@@ -54,4 +62,4 @@ app.use(verifyToken);
 app.use("/api/user", userRoutes);
 app.use("/api/events", eventRoutes)
 
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server is running on port ${PORT}`));
