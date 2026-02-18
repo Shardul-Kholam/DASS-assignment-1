@@ -11,7 +11,7 @@ const mongoose = require("mongoose");
 const verifyUser = async (req, res) => {
     try {
         const {email, password} = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({error: "Required fields are missing"});
         }
@@ -69,13 +69,13 @@ const register = async (req, res) => {
         }
 
         const contactNumber = Number(String(phone).replace(/\D/g, ''));
-        
+
         if (isNaN(contactNumber) || contactNumber <= 0) {
             return res.status(400).json({msg: "Invalid phone number"});
         }
 
         const trimmedOrgName = orgName.trim();
-        
+
         if (!trimmedOrgName.length) {
             return res.status(400).json({msg: "Organization name cannot be empty"});
         }
@@ -84,9 +84,9 @@ const register = async (req, res) => {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.trim(),
-            password, 
+            password,
             participantType,
-            contactNumber,    
+            contactNumber,
             OrgName: trimmedOrgName
         });
 

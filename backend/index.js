@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const eventRoutes = require('./routes/eventRoutes');
 const verifyToken = require("./middlewares/authMiddleware");
 
 const app = express();
@@ -22,7 +23,6 @@ require("./models/participant");
 require("./models/organizer");
 require("./models/event");
 require("./models/merchandiseEvent");
-require("./models/normalEvent");
 
 // Middleware
 app.use(cors({
@@ -31,11 +31,11 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 app.use((req, res, next) => {
-    const safeBody = { ...req.body };
+    const safeBody = {...req.body};
     if (safeBody && Object.prototype.hasOwnProperty.call(safeBody, 'password')) {
         safeBody.password = '[REDACTED]';
     }
@@ -52,5 +52,6 @@ app.use("/api/auth", authRoutes);
 
 app.use(verifyToken);
 app.use("/api/user", userRoutes);
+app.use("/api/events", eventRoutes)
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

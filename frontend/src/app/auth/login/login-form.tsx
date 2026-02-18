@@ -27,7 +27,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                 router.push(`${userID}/dashboard`);
             }
 
-            alert (response.ok ? "Login successful!" : "Login failed. Please check your credentials and try again.");
+            alert(response.ok ? "Login successful!" : "Login failed. Please check your credentials and try again.");
         } catch (error) {
             console.error("Login error:", error);
         }
@@ -54,7 +54,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                             placeholder="me@example.com"
                             required
                         />
-                        {errors.email && <p className= "text-destructive text-xs">{errors.email.message}</p>}
+                        {errors.email && <p className="text-destructive text-xs">{errors.email.message}</p>}
                     </Field>
 
                     <Field>
@@ -65,7 +65,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                             type="password"
                             required
                         />
-                        {errors.password && <p className= "text-destructive text-xs">{errors.password.message}</p>}
+                        {errors.password && <p className="text-destructive text-xs">{errors.password.message}</p>}
                     </Field>
 
                     <Field>

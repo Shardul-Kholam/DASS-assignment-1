@@ -3,13 +3,10 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        validate : [
+        type: String, required: true, unique: true, lowercase: true,
+        validate: [
             {
-                validator : (v) => {
+                validator: (v) => {
                     try {
                         let pattern = process.env.EMAIL_REGEX || '^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$';
                         pattern = String(pattern).trim().replace(/^\/+|\/+;?$|;$/g, '');
@@ -19,17 +16,12 @@ const userSchema = new mongoose.Schema({
                         return false;
                     }
                 },
-                message : 'Please enter a valid email, Syntax(example@domain)'
+                message: 'Please enter a valid email, Syntax(example@domain)'
             }
         ]
     },
-    password: {
-        type: String,
-        required: true,
-        minlength: 3,
-        select: false
-    }
-}, {discriminatorKey: 'role', timestamps: true });
+    password: {type: String, required: true, minlength: 3, select: false}
+}, {discriminatorKey: 'role', timestamps: true});
 
 // Password Encryption Middleware
 userSchema.pre('save', async function (next) {

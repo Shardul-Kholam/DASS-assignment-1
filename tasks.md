@@ -1,9 +1,11 @@
 # Implementation Level Tasks
 
 ## Phase 1: Backend (The Engine)
+
 *Focus: Node.js, Express, MongoDB*
 
 ### Day 1: Server Initialization
+
 - [X] **Project Setup**
     - [X] Create root folder `my-mern-project`.
     - [X] Create `backend` folder inside it.
@@ -18,6 +20,7 @@
     - [X] Test in browser: Visit `http://localhost:8080`.
 
 ### Day 2: Database Connection
+
 - [X] **MongoDB Atlas Setup**
     - [X] Create free account on MongoDB Atlas.
     - [X] Create a Cluster.
@@ -34,6 +37,7 @@
     - [X] Define Mongoose Schema (structure of your data).
 
 ### Day 3: API Routes (CRUD)
+
 - [X] **Setup Router**
     - [X] Create folder `backend/routes`.
     - [X] Create file `api.js`.
@@ -49,9 +53,11 @@
 ---
 
 ## Phase 2: Frontend (The Interface)
+
 *Focus: React, Vite, Axios*
 
 ### Day 4: React Initialization
+
 - [ ] **Setup Vite**
     - [ ] Go to root folder. Run `npm create vite@latest client -- --template react`.
     - [ ] Run `cd frontend` and `npm install`.
@@ -61,6 +67,7 @@
     - [ ] Create components folder: `frontend/src/components`.
 
 ### Day 5: Fetch & Display Data (Read)
+
 - [ ] **Setup State**
     - [ ] Import `useState` and `useEffect` in `App.jsx`.
     - [ ] Create state variable: `const [data, setData] = useState([])`.
@@ -72,6 +79,7 @@
     - [ ] Use `.map()` function to loop through `data` and display HTML elements.
 
 ### Day 6: Send Data (Create)
+
 - [ ] **Create Form Component**
     - [ ] Create input fields for your data.
     - [ ] Create state to hold input values (`currText`, etc.).
@@ -81,6 +89,7 @@
     - [ ] On success, refresh the list (fetch data again) or append new item locally.
 
 ### Day 7: Interaction (Delete/Update)
+
 - [ ] **Add Delete Buttons**
     - [ ] Add a button to each list item.
     - [ ] On click, call `axios.delete('.../delete/' + item._id)`.
@@ -89,9 +98,11 @@
 ---
 
 ## Phase 3: Final Polish
+
 *Focus: Styling, Cleanup*
 
 ### Day 8: CSS & Cleanup
+
 - [ ] **Styling**
     - [ ] Use basic CSS Grid/Flexbox to center the app.
     - [ ] Make inputs and buttons look decent (padding, margin).
@@ -102,7 +113,8 @@
     - [ ] Verify full flow: Open app → Add item → Refresh page (item should stay) → Delete item.
 
 ### Day 9-10: Buffer/Documentation
+
 - [ ] **Readme.md**
     - [ ] Write simple instructions: "How to run".
-      1. `cd backend` -> `npm run dev`
-      2. `cd frontend` -> `npm run dev`
+        1. `cd backend` -> `npm run dev`
+        2. `cd frontend` -> `npm run dev`

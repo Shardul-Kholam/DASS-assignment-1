@@ -7,7 +7,7 @@ function redact(value) {
     if (typeof value === 'string') return value;
     if (typeof value === 'object') {
         try {
-            const cloned = Array.isArray(value) ? [...value] : { ...value };
+            const cloned = Array.isArray(value) ? [...value] : {...value};
             for (const k of Object.keys(cloned)) {
                 if (SENSITIVE_KEYS.has(k)) cloned[k] = '[REDACTED]';
                 else if (typeof cloned[k] === 'object') cloned[k] = redact(cloned[k]);
@@ -56,4 +56,4 @@ function wrapConsoleMethod(name) {
 
 ['log', 'info', 'warn', 'error', 'debug'].forEach(wrapConsoleMethod);
 
-module.exports = { redact, getCallerLocation };
+module.exports = {redact, getCallerLocation};

@@ -1,12 +1,12 @@
 const User = require('../models/user');
 
-const getAllUsers = async (req,res) => {
-    try{
-        const users = await User.find({}, null, {lean : true});
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, null, {lean: true});
         return res.status(200).json(users);
-    } catch(err){
+    } catch (err) {
         console.error("Error fetching users", err);
-        return res.status(500).json({error:"Server Error"});
+        return res.status(500).json({error: "Server Error"});
     }
 }
 

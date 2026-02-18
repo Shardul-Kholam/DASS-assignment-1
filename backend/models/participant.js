@@ -1,49 +1,31 @@
 const mongoose = require('mongoose');
-const User = require('../models/user');
+const User = require('./user');
 
 const participantSchema = new mongoose.Schema({
-    firstName : {
-        type: String,
-        required: true
-    },
-    lastName : {
-        type: String,
-        required: true
-    },
-    contactNumber : {
-        type: Number,
-        required: true
-    },
-    orgName : {
-        type: String,
-        required: true
-    },
+    firstName: {type: String, required: true},
+    lastName: {type: String, required: true},
+    contactNumber: {type: Number, required: true},
+    orgName: {type: String, required: true},
     participantType: {
-        type: String,
-        enum: ['IIIT', 'Non-IIIT'],
-        default: 'IIIT',
-        required: true
+        type: String, enum: ['IIIT', 'Non-IIIT'], required: true
     }
 });
 
-// OrgName and ParticipantType validation
-participantSchema.pre('validate', function (next) {
-        if(this.orgName === 'International Institute of Information Technology, Hyderabad')
-            this.participantType = 'IIIT';
-        else this.participantType = 'Non-IIIT';
+// Validating email, orgName and participantType
+participantSchema.path('participantType').validate(function (value) {
+    if (this.email && this.email.endsWith('iiit.ac.in')) {
+        return value === 'IIIT';
     }
-);
+    return true;
+}, 'Users with IIIT emails must select Participant Type: IIIT');
 
-participant = User.discriminator('PARTICIPANT', participantSchema);
+participantSchema.path('email').validate(function (email) {
+    if (this.participantType === 'IIIT') {
+        return email.endsWith('iiit.ac.in');
+    }
+    return true;
+}, 'IIIT participants must use their institute email address.');
 
-// Email Validation
-participant.schema.path('email').validate(function(email){
-        if(this.get('participantType') === 'IIIT'){
-            return email.endsWith('.iiit.ac.in');
-        }
-        return true;
-    },
-    'IIIT participants must use their institute email!'
-);
+const Participant = User.discriminator('PARTICIPANT', participantSchema);
 
-module.exports = participant;
+module.exports = Participant;
