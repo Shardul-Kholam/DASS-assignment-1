@@ -22,13 +22,12 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                 method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                alert(errorData.message || "Login failed");
-                return;
+            if (response.ok) {
+                const {userID} = await response.json();
+                router.push(`${userID}/dashboard`);
             }
 
-            router.push("/dashboard");
+            alert (response.ok ? "Login successful!" : "Login failed. Please check your credentials and try again.");
         } catch (error) {
             console.error("Login error:", error);
         }

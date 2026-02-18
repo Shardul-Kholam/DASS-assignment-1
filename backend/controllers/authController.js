@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const participant = require("../models/participant");
 const mongoose = require("mongoose");
 
+
 const verifyUser = async (req, res) => {
     try {
         const {email, password} = req.body;
@@ -15,7 +16,6 @@ const verifyUser = async (req, res) => {
             return res.status(400).json({error: "Required fields are missing"});
         }
 
-        // Fixed: Use .select() instead of positional params
         const user = await User.findOne({email}).select('+password');
         const authError = "Invalid email or password";
 
@@ -36,7 +36,14 @@ const verifyUser = async (req, res) => {
             role: user.role
         }
 
-        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: '1h'});
+        const token = jwt.sign(tokenPayload, process.env.JWT_SECRET, {expiresIn: '7d'});
+
+        res.cookies('authToken', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
         return res.status(200).json({
             msg: "Successfully Logged In",
