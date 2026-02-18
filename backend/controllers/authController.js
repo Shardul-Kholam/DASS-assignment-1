@@ -93,11 +93,6 @@ const register = async (req, res) => {
             });
         }
 
-        const emailRegex = process.env.INSTITUTE_DOMAIN;
-        if (!emailRegex.test(email)) {
-             return res.status(400).json({msg: "Invalid email format"});
-        }
-
         const newUser = new participant({
             firstName: firstName.trim(),
             lastName: lastName.trim(),
@@ -105,7 +100,7 @@ const register = async (req, res) => {
             password,
             participantType,
             contactNumber,
-            OrgName: trimmedOrgName
+            orgName: trimmedOrgName
         });
 
         const savedUser = await newUser.save();

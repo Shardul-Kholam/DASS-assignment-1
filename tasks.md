@@ -122,17 +122,3 @@
   - *Task:* Add `Feedback` model (stars, comment). Show simple form on past events. Calculate average stars.
 
 ---
-
-## Phase 5: Final Polish & Deployment
-*Status: To Do*
-
-- [ ] **Documentation**:
-  - [ ] `README.md`: List libraries used + Justification.
-  - [ ] Document the chosen Advanced Features (Payment, QR, Reset, Forum, Feedback).
-- [ ] **Deployment**:
-  - [ ] Frontend: Vercel/Netlify.
-  - [ ] Backend: Render/Railway.
-  - [ ] Database: MongoDB Atlas.
-  - [ ] Create `deployment.txt` with URLs.
-- [ ] **Submission**:
-  - [ ] Zip file structure: `<roll_no>/backend`, `<roll_no>/frontend`, `README.md`.

@@ -73,35 +73,19 @@ const registerForEvent = async (req, res) => {
             return res.status(400).json({error: "Already registered"});
         }
 
-        let updatedEvent;
+        // Check registration limit
+        const updatedEvent = await Event.findOneAndUpdate(
+            {
+                _id: eventId,
+                $expr: { $lt: [{ $size: "$registrations" }, "$registrationLimit"] }
+            },
+            {
+                $push: { registrations: { participantId, registeredAt: new Date() } }
+            },
+            { new: true }
+        );
 
-        if (event.eventType === 'MERCHANDISE') {
-            updatedEvent = await Event.findOneAndUpdate(
-                {
-                    _id: eventId,
-                    stock: { $gt: 0 }
-                },
-                {
-                    $push: { registrations: { participantId, date: new Date() } },
-                    $inc: { stock: -1 } 
-                },
-                { new: true }
-            );
-            if (!updatedEvent) return res.status(400).json({error: "Item out of stock"});
-
-        } else {
-            updatedEvent = await Event.findOneAndUpdate(
-                {
-                    _id: eventId,
-                    $expr: { $lt: [{ $size: "$registrations" }, "$registrationLimit"] } // Ensure size < limit
-                },
-                {
-                    $push: { registrations: { participantId, date: new Date() } }
-                },
-                { new: true }
-            );
-            if (!updatedEvent) return res.status(400).json({error: "Registration limit reached"});
-        }
+        if (!updatedEvent) return res.status(400).json({error: "Registration limit reached"});
 
         logger.info(`User ${participantId} registered for ${eventId}`);
         res.status(200).json({msg: "Registration successful", ticketId: updatedEvent._id});
