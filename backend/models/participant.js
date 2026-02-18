@@ -20,7 +20,7 @@ const participantSchema = new mongoose.Schema({
 
 // OrgName and ParticipantType validation
 participantSchema.pre('validate', function (next) {
-        if(this.OrgName === 'International Institute of Information Technology')
+        if(this.OrgName === 'International Institute of Information Technology, Hyderabad')
             this.participantType = 'IIIT';
         else this.participantType = 'Non-IIIT';
     }

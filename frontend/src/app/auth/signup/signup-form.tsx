@@ -134,8 +134,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <RadioGroupItem value="non-IIIT" id="non-IIIT" />
-                                        <FieldLabel htmlFor="non-IIIT" className="font-normal">Non-IIIT</FieldLabel>
+                                        <RadioGroupItem value="Non-IIIT" id="Non-IIIT" />
+                                        <FieldLabel htmlFor="Non-IIIT" className="font-normal">Non-IIIT</FieldLabel>
                                     </div>
                                 </RadioGroup>
                             )}

@@ -19,7 +19,7 @@ export const signUpSchema = z.object({
             const trimmedOrgName = orgName.trim();
             return trimmedOrgName.length > 0;
         }, 'Organization Name cannot be empty or just whitespace'),
-    participantType: z.enum(["IIIT", "non-IIIT"]),
+    participantType: z.enum(["IIIT", "Non-IIIT"]),
     phone: z.string().min(10, 'phone number must be at least 10 digits long'),
     email: z.email('Invalid email address'),
     password: z.string()
@@ -35,7 +35,7 @@ export const signUpSchema = z.object({
     if (isIIITH) {
         return data.participantType === "IIIT" && data.email.endsWith("iiit.ac.in");
     }
-    return data.participantType === "non-IIIT";
+    return data.participantType === "Non-IIIT";
 }, {
     message: "Organization, Participant Type, and Email must match (IIITH requires iiit.ac.in email)",
     path: ["participantType"],
