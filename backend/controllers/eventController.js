@@ -108,14 +108,12 @@ const updateEvent = async (req, res) => {
             return res.status(404).json({ error: "Event not found" });
         }
 
-        // Authorization: Only the organizer who created it can update it
         if (event.orgID.toString() !== userId && req.user.role !== 'ADMIN') {
             return res.status(403).json({ error: "Unauthorized to update this event" });
         }
 
-        // Prevent updating critical fields if necessary (e.g., orgID)
         delete updates.orgID;
-        delete updates.registrations; // specific endpoint for logic handling
+        delete updates.registrations; 
 
         const updatedEvent = await Event.findByIdAndUpdate(eventId, updates, { new: true });
         logger.info(`Event updated: ${eventId} by ${userId}`);

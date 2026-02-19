@@ -57,19 +57,30 @@ export default function DashboardPage() {
     React.useEffect(() => {
         const verifyUser = async () => {
             try {
+                // First check if user has a valid token
+                const token = localStorage.getItem("authToken");
+                if (!token) {
+                    toast.error("Please log in to access the dashboard");
+                    router.push("/login");
+                    return;
+                }
+
                 const res = await fetch(`/api/user/${targetUserID}`)
                 if (res.status === 401 || res.status === 403) {
-                    toast.error("Unauthorized Access")
-                    router.push("/auth/login")
-                    return
+                    // Token is invalid or expired
+                    localStorage.removeItem("authToken");
+                    localStorage.removeItem("userID");
+                    toast.error("Session expired. Please log in again.");
+                    router.push("/login");
+                    return;
                 }
-                if (!res.ok) throw new Error("Failed to fetch user")
+                if (!res.ok) throw new Error("Failed to fetch user");
 
-                const userData = await res.json()
+                const userData = await res.json();
 
                 if (userData._id !== targetUserID) {
-                    toast.error("Security Warning: You cannot access another user's dashboard.")
-                    router.push(`/auth/login`)
+                    toast.error("Security Warning: You cannot access another user's dashboard.");
+                    router.push("/login");
                     return;
                 }
 
@@ -78,19 +89,19 @@ export default function DashboardPage() {
                     email: userData.email,
                     role: userData.role || 'PARTICIPANT',
                     firstName: userData.firstName
-                })
-                setIsAuthorized(true)
+                });
+                setIsAuthorized(true);
 
             } catch (error) {
-                console.error("Auth Error:", error)
-                toast.error("Session expired or unauthorized access.")
-                router.push("/auth/login")
+                console.error("Auth Error:", error);
+                toast.error("Session expired or unauthorized access.");
+                router.push("/login");
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         }
-        void verifyUser()
-    }, [targetUserID, router])
+        void verifyUser();
+    }, [targetUserID, router]);
 
     // 2. Fetch Events (Day 5 Task)
     const fetchEvents = React.useCallback(async () => {

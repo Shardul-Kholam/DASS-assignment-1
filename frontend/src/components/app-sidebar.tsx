@@ -49,9 +49,12 @@ export function AppSidebar({onSelect, activeId, ...props}: any) {
     const navItems = NAV_DATA[userRole]
 
     const handleLogout = () => {
-        // Clear cookies/tokens and redirect
-        document.cookie = "auth_token=; Max-Age=0; path=/;"
-        window.location.href = "/auth/login"
+        document.cookie = "authToken=; Max-Age=0; path=/;"
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("userID");
+        window.dispatchEvent(new Event("storage"));
+        // Redirect to login
+        window.location.href = "/login"
     }
 
     return (

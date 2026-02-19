@@ -8,12 +8,11 @@ const formFieldSchema = new mongoose.Schema({
         required: true
     },
     required: {type: Boolean, default: false},
-    options: [{type: String}], // For dropdowns/checkboxes
+    options: [{type: String}],
     order: {type: Number, default: 0}
 });
 
 const eventSchema = new mongoose.Schema({
-    // PDF Section 8: Event Attributes
     Name: {type: String, required: true},
     description: {type: String, required: true},
     eligibility: {type: String, required: true},

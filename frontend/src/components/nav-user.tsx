@@ -83,7 +83,17 @@ export function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator/>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                            // Clear authToken cookie
+                            document.cookie = "authToken=; Max-Age=0; path=/;"
+                            // Clear localStorage tokens and user info
+                            localStorage.removeItem("authToken");
+                            localStorage.removeItem("userID");
+                            // Notify other tabs/windows of logout
+                            window.dispatchEvent(new Event("storage"));
+                            // Redirect to login
+                            window.location.href = "/login"
+                        }}>
                             <IconLogout/>
                             Log out
                         </DropdownMenuItem>

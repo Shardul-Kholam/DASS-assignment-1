@@ -53,8 +53,9 @@ const verifyUser = async (req, res) => {
 
         return res.status(200).json({
             msg: "Successfully Logged In",
+            userID,
             token,
-            redirectUrl: `/user/${userID}/dashboard`
+            redirectUrl: `/${userID}/dashboard`
         });
     } catch (err) {
         logger.error("Login Error", {error: err.message});

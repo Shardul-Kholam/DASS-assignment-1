@@ -6,7 +6,7 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group";
 import {Field, FieldDescription, FieldGroup, FieldLabel} from "@/components/ui/field";
-import {signUpSchema, signUpValues} from "@/app/auth/signup/signUpSchema";
+import {signUpSchema, signUpValues} from "@/app/(auth)/signup/signUpSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Controller, useForm} from "react-hook-form";
 import axiosClient from "@/lib/axiosClient";
@@ -44,7 +44,7 @@ export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
             const responseData = response.data;
 
             alert("Account created successfully!");
-            router.push("/auth/login");
+            router.push("/login");
 
         } catch (error) {
             console.error("Signup error:", error);
@@ -71,7 +71,7 @@ export function SignupForm({className, ...props}: React.ComponentProps<"div">) {
                     <div className="flex flex-col items-center gap-2 text-center">
                         <h1 className="text-xl font-bold">Welcome to Felicity</h1>
                         <FieldDescription>
-                            Already have an account? <a href="/auth/login" className="underline">Sign in</a>
+                            Already have an account? <a href="/login" className="underline">Sign in</a>
                         </FieldDescription>
                     </div>
 

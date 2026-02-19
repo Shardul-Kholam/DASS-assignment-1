@@ -6,7 +6,7 @@ import {Input} from "@/components/ui/input"
 import React from "react";
 import {useRouter} from "next/navigation";
 import {useForm} from "react-hook-form";
-import {logInSchema, logInValues} from "@/app/auth/login/loginSchema";
+import {logInSchema, logInValues} from "@/app/(auth)/login/loginSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
 import axiosClient from "@/lib/axiosClient";
 import {AxiosError} from "axios";
@@ -28,10 +28,19 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                 localStorage.setItem("authToken", responseData.token);
             }
 
-            window.dispatchEvent(new Event("storage")); // Notify other tabs about the token change
+            if(responseData.userID){
+                localStorage.setItem("userID", responseData.userID);
+            }
 
-            router.push(`${responseData.userID}/dashboard`);
-            alert("Login successful!");
+            window.dispatchEvent(new Event("storage"));
+
+            if (responseData.redirectUrl) {
+                router.push(responseData.redirectUrl);
+            } else if (responseData.userID) {
+                router.push(`/${responseData.userID}/dashboard`);
+            } else {
+                router.push("/");
+            }
         } catch (error) {
             console.error("Login error:", error);
             let errorMessage = "Login failed. Please check your credentials and try again.";
@@ -53,7 +62,7 @@ export function LoginForm({className, ...props}: React.ComponentProps<"div">) {
                     <div className="flex flex-col items-center gap-2 text-center">
                         <h1 className="text-xl font-bold">Welcome to Felicity</h1>
                         <FieldDescription>
-                            Don&apos;t have an account? <a href="/auth/signup">Sign up</a>
+                            Don&apos;t have an account? <a href="/signup">Sign up</a>
                         </FieldDescription>
                     </div>
 

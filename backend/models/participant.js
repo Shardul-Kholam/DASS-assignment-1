@@ -14,14 +14,12 @@ const participantSchema = new mongoose.Schema({
     }
 });
 
-participantSchema.pre('save', function(next) {
+participantSchema.pre('save', async function() {
     if (this.participantType === 'IIIT') {
         if (!this.email || !this.email.endsWith(INSTITUTE_DOMAIN)) {
-            const err = new Error(`Institute participants must use their ${INSTITUTE_DOMAIN} email address.`);
-            return next(err);
+            throw new Error(`Institute participants must use their ${INSTITUTE_DOMAIN} email address.`);
         }
     }
-    next();
 });
 
 const Participant = User.discriminator('PARTICIPANT', participantSchema);

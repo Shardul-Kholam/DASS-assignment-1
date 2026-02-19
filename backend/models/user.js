@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-let emailPattern = process.env.EMAIL_REGEX || '^[\\w.+-]+@[\\w.-]+\\.[A-Za-z]{2,}$';
+let emailPattern = process.env.EMAIL_REGEX;
 
 emailPattern = String(emailPattern).trim().replace(/^\/+|\/+;?$|;$/g, '');
 const emailRegex = new RegExp(emailPattern);
@@ -24,15 +24,14 @@ const userSchema = new mongoose.Schema({
 }, {discriminatorKey: 'role', timestamps: true});
 
 // Password Encryption Middleware
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-
+userSchema.pre('save', async function() {
+    if (!this.isModified('password')) return;
+    
     try {
         const salt = await bcrypt.genSalt(10);
         this.password = await bcrypt.hash(this.password, salt);
-        next();
     } catch (err) {
-        next(err);
+        throw err;
     }
 })
 
